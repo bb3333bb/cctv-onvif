@@ -11,6 +11,10 @@ try {
 	onvif = require('node-onvif');
 }
 
+// our default username
+const onvif_user = process.env.DEFAULT_ONVIF_USER || "onvif";
+// our default password
+const onvif_pwd = process.env.DEFAULT_ONVIF_PWD || "123456a@";
 
 var devices = {};
 var devices_sumary = {};
@@ -30,7 +34,10 @@ function startDiscovery() {
 		for(var addr in devices) {
 			devices_sumary[addr] = {
 				name: names[addr],
-				address: addr
+				address: addr,
+				user: onvif_user,
+				password: onvif_pwd,
+				connected: false
 			}
         }
         console.log("found: " + JSON.stringify(devices_sumary));		
