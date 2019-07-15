@@ -29,18 +29,26 @@ function startDiscovery() {
 			let addr = odevice.address;
 			devices[addr] = odevice;
 			names[addr] = device.name;
-		});
-        devices_sumary = {};
-		for(var addr in devices) {
+			//try to connect with default user/pass
+			odevice.setAuth(onvif_user, onvif_pwd);
+			let connect_status =false;
+			odevice.init((error, result) => {
+				var res = {'id': 'connect'};
+				if(error) {
+					res['error'] = error.toString();
+				} else {
+					res['result'] = result;
+					connect_status = true;
+				}
+			});
 			devices_sumary[addr] = {
 				name: names[addr],
 				address: addr,
 				user: onvif_user,
 				password: onvif_pwd,
-				connected: false
+				connected: connect_status
 			}
-        }
-        console.log("found: " + JSON.stringify(devices_sumary));		
+        console.log("found: " + JSON.stringify(devices));		
 	}).catch((error) => {
 		console.log('connect error:'+ error.message);		
 	});
@@ -67,7 +75,7 @@ io.on("connection", socket => {
       io.sockets.emit("get_data", devices_sumary);
   });
 
-  // Placing the order, gets called from /Camera.js of Frontend
+  // Request connect, gets called from /Camera.js of Frontend
   socket.on("connect", devs => {
     var device = devices[devs.address];
 	if(!device) {
